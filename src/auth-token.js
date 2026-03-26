@@ -4,10 +4,10 @@
  */
 
 const config = {
-  clientId: 'YOUR_CLIENT_ID',
-  clientSecret: 'YOUR_CLIENT_SECRET',
-  authCode: 'THE_CODE_FROM_YOUR_BROWSER_URL',
-  redirectUri: 'http://localhost:8080', // Must match the portal exactly
+  clientId: process.env.SMARTHQ_CLIENT_ID,
+  clientSecret: process.env.SMARTHQ_CLIENT_SECRET,
+  authCode: process.argv[2],
+  redirectUri: process.env.SMARTHQ_REDIRECT_URI ?? 'http://localhost:8080',
 };
 
 const TOKEN_URL = 'https://accounts.brillion.geappliances.com/oauth2/token';

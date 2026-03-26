@@ -1,5 +1,9 @@
 {
   "name": "smart-hq-auto-dim-lights",
   "type": "module",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "scripts": {
+    "auth": "node --env-file=.env src/auth-token.js",
+    "dim": "node --env-file=.env src/auto-dim.js"
+  }
 }
