@@ -31,19 +31,20 @@ jobs:
 
       - name: Determine brightness
         id: brightness
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "value=${{ inputs.brightness }}" >> $GITHUB_OUTPUT
-          else
-            HOUR=$(date -u +%H)
-            case "$HOUR" in
-              10) echo "value=50"  >> $GITHUB_OUTPUT ;;  # 6am ET
-              11) echo "value=100" >> $GITHUB_OUTPUT ;;  # 7am ET
-              23) echo "value=50"  >> $GITHUB_OUTPUT ;;  # 7pm ET
-              01) echo "value=15"  >> $GITHUB_OUTPUT ;;  # 9pm ET
-              *)  echo "value=100" >> $GITHUB_OUTPUT ;;
-            esac
-          fi
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.eventName === 'workflow_dispatch') {
+              core.setOutput('brightness', context.payload.inputs.brightness);
+            } else {
+              const schedule = {
+                '0 10 * * *': 50,   // 6am ET
+                '0 11 * * *': 100,  // 7am ET
+                '0 23 * * *': 50,   // 7pm ET
+                '0 1 * * *':  15,   // 9pm ET
+              };
+              core.setOutput('brightness', schedule[context.payload.schedule] ?? 100);
+            }
 
-      - name: Set fridge brightness to ${{ steps.brightness.outputs.value }}%
-        run: node src/auto-dim.js ${{ steps.brightness.outputs.value }}
+      - name: Set fridge brightness to ${{ steps.brightness.outputs.brightness }}%
+        run: node src/auto-dim.js ${{ steps.brightness.outputs.brightness }}
