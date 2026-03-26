@@ -37,3 +37,29 @@ npm run dim -- 50    # set to 50%
 ```
 
 The script automatically exchanges the saved refresh token for a fresh access token on each run.
+
+---
+
+## GitHub Action — Scheduled Dimming
+
+`.github/workflows/dim-lights.yml` runs on a schedule to automatically adjust brightness throughout the day (all times ET):
+
+| Time | Brightness |
+|------|------------|
+| 6am  | 50%        |
+| 7am  | 100%       |
+| 7pm  | 50%        |
+| 9pm  | 15%        |
+
+The action can also be triggered manually from the Actions tab with a custom brightness value.
+
+### Required Repository Secrets
+
+Add these under **Settings → Secrets and variables → Actions**:
+
+| Secret | Description |
+|--------|-------------|
+| `SMARTHQ_CLIENT_ID` | OAuth2 client ID |
+| `SMARTHQ_CLIENT_SECRET` | OAuth2 client secret |
+| `SMARTHQ_REFRESH_TOKEN` | Long-lived refresh token (from `npm run auth`) |
+| `SMARTHQ_DEVICE_ID` | Device ID of the refrigerator |

@@ -1,0 +1,49 @@
+name: Auto Dim Fridge Lights
+
+on:
+  schedule:
+    - cron: '0 10 * * *'  # 6am ET (UTC-4)
+    - cron: '0 11 * * *'  # 7am ET (UTC-4)
+    - cron: '0 23 * * *'  # 7pm ET (UTC-4)
+    - cron: '0 1 * * *'   # 9pm ET (UTC-4)
+  workflow_dispatch:
+    inputs:
+      brightness:
+        description: 'Brightness value (0-100)'
+        required: true
+        default: '100'
+
+env:
+  SMARTHQ_CLIENT_ID: ${{ secrets.SMARTHQ_CLIENT_ID }}
+  SMARTHQ_CLIENT_SECRET: ${{ secrets.SMARTHQ_CLIENT_SECRET }}
+  SMARTHQ_REFRESH_TOKEN: ${{ secrets.SMARTHQ_REFRESH_TOKEN }}
+  SMARTHQ_DEVICE_ID: ${{ secrets.SMARTHQ_DEVICE_ID }}
+
+jobs:
+  dim-lights:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Determine brightness
+        id: brightness
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ inputs.brightness }}" >> $GITHUB_OUTPUT
+          else
+            HOUR=$(date -u +%H)
+            case "$HOUR" in
+              10) echo "value=50"  >> $GITHUB_OUTPUT ;;  # 6am ET
+              11) echo "value=100" >> $GITHUB_OUTPUT ;;  # 7am ET
+              23) echo "value=50"  >> $GITHUB_OUTPUT ;;  # 7pm ET
+              01) echo "value=15"  >> $GITHUB_OUTPUT ;;  # 9pm ET
+              *)  echo "value=100" >> $GITHUB_OUTPUT ;;
+            esac
+          fi
+
+      - name: Set fridge brightness to ${{ steps.brightness.outputs.value }}%
+        run: node src/auto-dim.js ${{ steps.brightness.outputs.value }}
