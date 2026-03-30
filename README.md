@@ -1,6 +1,14 @@
 # smart-hq-auto-dim-lights
 Automatically dim lights on GE Fridge using Developer APIs
 
+## Smart HQ Dev Account
+
+1. Go to <https://docs.smarthq.com/get-started/>
+2. Create an account
+3. Create an app
+   * Set the callback url to `http://localhost:8080`
+   * Take note of the client id and secret
+
 ## Setup
 
 Create `.env`file and fill in your credentials:
