@@ -5,7 +5,7 @@ on:
     - cron: '0 10 * * *'  # 6am ET (UTC-4)
     - cron: '0 11 * * *'  # 7am ET (UTC-4)
     - cron: '0 23 * * *'  # 7pm ET (UTC-4)
-    - cron: '0 1 * * *'   # 9pm ET (UTC-4)
+    - cron: '0 0 * * *'   # 8pm ET (UTC-4)
   workflow_dispatch:
     inputs:
       brightness:
@@ -42,7 +42,7 @@ jobs:
                 '0 10 * * *': 50,   // 6am ET
                 '0 11 * * *': 100,  // 7am ET
                 '0 23 * * *': 50,   // 7pm ET
-                '0 1 * * *':  15,   // 9pm ET
+                '0 0 * * *':  0,    // 8pm ET
               };
               core.setOutput('brightness', schedule[context.payload.schedule] ?? 100);
             }
