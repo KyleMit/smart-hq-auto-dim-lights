@@ -13,13 +13,6 @@ on:
         required: true
         default: '100'
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  SMARTHQ_CLIENT_ID: ${{ secrets.SMARTHQ_CLIENT_ID }}
-  SMARTHQ_CLIENT_SECRET: ${{ secrets.SMARTHQ_CLIENT_SECRET }}
-  SMARTHQ_REFRESH_TOKEN: ${{ secrets.SMARTHQ_REFRESH_TOKEN }}
-  SMARTHQ_DEVICE_ID: ${{ secrets.SMARTHQ_DEVICE_ID }}
-
 jobs:
   dim-lights:
     runs-on: ubuntu-latest
@@ -51,3 +44,10 @@ jobs:
 
       - name: Set fridge brightness to ${{ steps.brightness.outputs.brightness }}%
         run: node src/auto-dim.js ${{ steps.brightness.outputs.brightness }}
+
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+          SMARTHQ_CLIENT_ID: ${{ secrets.SMARTHQ_CLIENT_ID }}
+          SMARTHQ_CLIENT_SECRET: ${{ secrets.SMARTHQ_CLIENT_SECRET }}
+          SMARTHQ_REFRESH_TOKEN: ${{ secrets.SMARTHQ_REFRESH_TOKEN }}
+          SMARTHQ_DEVICE_ID: ${{ secrets.SMARTHQ_DEVICE_ID }}
