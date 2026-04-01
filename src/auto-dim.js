@@ -31,58 +31,44 @@ async function getAccessToken() {
   const data = await response.json();
 
   if (!data.access_token) throw new Error('No access token in response');
-  
+
   return data.access_token;
 }
-
 
 async function findRefrigerator(accessToken) {
   console.log('--- Searching for Refrigerator ---');
 
-  try {
-    const response = await fetch(`${API_HOST}/v2/device`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
+  const response = await fetch(`${API_HOST}/v2/device`, {
+    headers: { 'Authorization': `Bearer ${accessToken}` },
+  });
 
-    const data = await response.json();
+  if (!response.ok) throw new Error(`Device list failed: ${await response.text()}`);
 
-    if (!response.ok) {
-      console.error('API Error:', data);
-      return;
-    }
+  const data = await response.json();
 
-    if (!data.devices || data.devices.length === 0) {
-      console.warn('Success, but 0 devices found.');
-      console.log('Tip: Ensure your Developer App has "device:read" permissions and you clicked "Authorize" during login.');
-      console.log('Tip: Ensure you\'ve registered at least one device in the SmartHQ app and that it\'s online.');
-      return;
-    }
-
-    // Filter for the refrigerator
-    const fridge = data.devices.find(d => 
-      d.deviceType.toLowerCase().includes('refrigerator')
-    );
-
-    if (fridge) {
-      console.log('✅ Refrigerator Found!');
-      console.log(`Nickname:  ${fridge.nickname}`);
-      console.log(`Model:     ${fridge.model}`);
-      console.log(`Device ID: ${fridge.deviceId}`); // <--- THIS IS WHAT YOU NEED
-      console.log('\nCopy the Device ID above for your automation script.');
-      return fridge.deviceId;
-
-    } else {
-      console.log('❌ No refrigerator found in the device list.');
-      console.log('Available device types in your account:', data.devices.map(d => d.deviceType));
-    }
-
-  } catch (error) {
-    console.error('Network Error:', error.message);
+  if (!data.devices || data.devices.length === 0) {
+    console.warn('Success, but 0 devices found.');
+    console.log('Tip: Ensure your Developer App has "device:read" permissions and you clicked "Authorize" during login.');
+    console.log('Tip: Ensure you\'ve registered at least one device in the SmartHQ app and that it\'s online.');
+    return;
   }
+
+  const fridge = data.devices.find(d =>
+    d.deviceType.toLowerCase().includes('refrigerator')
+  );
+
+  if (!fridge) {
+    console.log('❌ No refrigerator found in the device list.');
+    console.log('Available device types in your account:', data.devices.map(d => d.deviceType));
+    return;
+  }
+
+  console.log('✅ Refrigerator Found!');
+  console.log(`Nickname:  ${fridge.nickname}`);
+  console.log(`Model:     ${fridge.model}`);
+  console.log(`Device ID: ${fridge.deviceId}`);
+  console.log('\nCopy the Device ID above for your automation script.');
+  return fridge.deviceId;
 }
 
 /**
@@ -91,7 +77,6 @@ async function findRefrigerator(accessToken) {
  */
 async function setFridgeBrightness(value) {
   try {
-
     const token = await getAccessToken();
 
     if (!config.deviceId) {
@@ -106,12 +91,12 @@ async function setFridgeBrightness(value) {
     };
 
     // 1. Discovery: Get device details to find the specific serviceDeviceType
-    const deviceUri = `${API_HOST}/v2/device/${config.deviceId}`;
-    const deviceRes = await fetch(deviceUri, { headers });
+    const deviceRes = await fetch(`${API_HOST}/v2/device/${config.deviceId}`, { headers });
     const deviceData = await deviceRes.json();
 
     if (!deviceData.services) {
       console.error('No services found for this device. Cannot proceed.');
+      return;
     }
 
     const brightnessService = deviceData.services.find(
@@ -155,6 +140,6 @@ async function setFridgeBrightness(value) {
 }
 
 // --- Execution Logic ---
-// Run manually: node fridge.js 10
-const targetBrightness = process.argv[2] || 100;
+// Run manually: node auto-dim.js 10
+const targetBrightness = Number(process.argv[2] ?? 100);
 setFridgeBrightness(targetBrightness);
