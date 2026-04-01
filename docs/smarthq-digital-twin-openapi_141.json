@@ -9767,7 +9767,7 @@
         "example": {
           "kind": "file#url",
           "expiration": "Thu Mar 30 12:12:08 UTC 2023",
-          "url": "https://smarthq-history-reports-us-east-1.s3.amazonaws.com/fld/file/ptac6967_2023-02-28T12%3A11%3A18.400915Z?X-Amz-Security-Token=FwoGZXIvYXdzEN7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaDE6TjAjikOqv8bSs8yLNAaC1fWF7qa51knXMPxUIokd1UDRlKbkritpH985vJax2FDgz6YUePTQLP%2BsMIdSmxmvme18e%2FlmA6LcXOAy9uFps3XLzRQQZZovi%2FrpTNPtttfpD7zVIaG1o8xBHyhjMpzzpZgIN5YyCaOUWm5Rfei78LXCDgOl3gcXUtrz0E3barVUHKZnNazBSUZBmB8mGkAjhAY%2FxZLj4mC9RYIbRMbKWN2TxCAuMAlLt7BzTJjyTzeCS1KUEo%2FKESkMYVKfRP1P6V%2FtzjDmq%2B7TUsFAot%2BP3nwYyM4yR2Bb%2BfqK0Bc238NEUQTgYPHUTyQkk1b7ROKaH0zekPiSoAn9uAfAoV6mrMcDQ49XchQ%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230228T130206Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3597&X-Amz-Credential=ASIARBAWGHQN7RGLOZWH%2F20230228%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=c8e67774cde378cd03aae8f73242cf309dd963cafe336708c387947f857e2b1b",
+          "url": "https://smarthq-history-reports-us-east-1.s3.amazonaws.com/example-presigned-url",
           "status": "uploaded"
         }
       },
