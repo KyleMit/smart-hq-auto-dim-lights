@@ -1,7 +1,10 @@
-# smart-hq-auto-dim-lights
-Automatically dim lights on GE Fridge using Developer APIs
+# SmartHQ - Auto Dim Lights
 
-## Smart HQ Dev Account
+Automatically control the backlight on a GE fridge based on a schedule using the Developer API
+
+## Setup
+
+### 1. Smart HQ Dev Account
 
 1. Go to <https://docs.smarthq.com/get-started/>
 2. Create an account
@@ -9,46 +12,90 @@ Automatically dim lights on GE Fridge using Developer APIs
    * Set the callback url to `http://localhost:8080`
    * Take note of the client id and secret
 
-## Setup
+### 2. Complete OAuth Handshake (one-time)
 
-Create `.env`file and fill in your credentials:
+1. Replace the placeholders with your credentials from Step 1:
 
-```env
+   ```none
+   https://accounts.brillion.geappliances.com/oauth2/auth?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost:8080&access_type=offline
+   ```
+
+2. Paste that URL into your browser.
+
+3. Log in with your SmartHQ end-user credentials.
+
+4. Authorize the app.
+
+5. Your browser will redirect to a "Page Not Found" at localhost:8080, but look at the URL bar. It will look like this:
+
+   ```none
+   http://localhost:8080/?code=SOME_LONG_AUTH_CODE&expires_in=600
+   ```
+
+6. **Copy that code**. You have 10 minutes to use it.
+
+## 3. Exchange auth code for tokens
+
+1. Run this **once** after completing the OAuth2 browser flow. Pass the `code` from the redirect URL as an argument.
+
+   ```bash
+   npm run auth -- <auth_code>
+   ```
+
+2. On success it prints your `access_token` (temporary) and `refresh_token` (permanent).
+3. Take note of the `refresh_token`.  This will last a long time
+
+## 4. Setup environment variables
+
+### Local Setup
+
+Create `.env` file and fill in your credentials:
+
+```ini
 SMARTHQ_CLIENT_ID=your_client_id
 SMARTHQ_CLIENT_SECRET=your_client_secret
 SMARTHQ_REFRESH_TOKEN=your_refresh_token
-SMARTHQ_DEVICE_ID=cached_device_id
+# SMARTHQ_DEVICE_ID=cached_device_id (optional caching layer)
 ```
 
-## Scripts
+### Github Actions Setup
 
-### `npm run auth` — Exchange an Authorization Code for Tokens
+1. Go to your repository
+2. Settings > Secrets and variables > actions
 
-Run this **once** after completing the OAuth2 browser flow. Pass the `code` from the redirect URL as an argument.
+   i.e. <https://github.com/KyleMit/smart-hq-auto-dim-lights/settings/secrets/actions>
 
-```bash
-npm run auth -- <auth_code>
-```
+3. Create a repository secret for each of the environment variables in the local setup
 
-On success it prints your `access_token` and `refresh_token`. Save the `refresh_token` to your `.env` as `SMARTHQ_REFRESH_TOKEN`.
+## 5. Run Code
+
+### Run Locally
+
+1. Run with `npm run dim` to send a brightness command to the configured device.
+
+   Accepts a brightness value (0–100) as an argument. Defaults to `100` if omitted.
+
+   ```bash
+   npm run dim          # set to 100%
+   npm run dim -- 0     # turn off
+   npm run dim -- 50    # set to 50%
+   ```
+
+2. The script automatically exchanges the saved refresh token for a fresh access token on each run.
+
+### Run on Github Actions
+
+1. Go to your repository > Actions
+
+   i.e. <https://github.com/KyleMit/smart-hq-auto-dim-lights/actions>
+
+2. Select the "Auto Dim Fridge Lights" workflow
+
+3. Manually select "Run workflow" to kick off in Github
 
 ---
 
-### `npm run dim` — Set Fridge Light Brightness
-
-Sends a brightness command to the configured device. Accepts a brightness value (0–100) as an argument. Defaults to `100` if omitted.
-
-```bash
-npm run dim          # set to 100%
-npm run dim -- 0     # turn off
-npm run dim -- 50    # set to 50%
-```
-
-The script automatically exchanges the saved refresh token for a fresh access token on each run.
-
----
-
-## GitHub Action — Scheduled Dimming
+## Dimming Schedule
 
 `.github/workflows/dim-lights.yml` runs on a schedule to automatically adjust brightness throughout the day (all times ET):
 
@@ -57,17 +104,14 @@ The script automatically exchanges the saved refresh token for a fresh access to
 | 6am  | 50%        |
 | 7am  | 100%       |
 | 7pm  | 50%        |
-| 9pm  | 15%        |
+| 8pm  | 0%         |
 
-The action can also be triggered manually from the Actions tab with a custom brightness value.
 
-### Required Repository Secrets
+## Cache Device Id
 
-Add these under **Settings → Secrets and variables → Actions**:
+If you only have a single fridge, you can avoid the extra lookup by saving the device id in your environment variables
 
-| Secret | Description |
-|--------|-------------|
-| `SMARTHQ_CLIENT_ID` | OAuth2 client ID |
-| `SMARTHQ_CLIENT_SECRET` | OAuth2 client secret |
-| `SMARTHQ_REFRESH_TOKEN` | Long-lived refresh token (from `npm run auth`) |
-| `SMARTHQ_DEVICE_ID` | Device ID of the refrigerator |
+```ini
+SMARTHQ_DEVICE_ID=cached_device_id
+```
+
